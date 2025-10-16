@@ -12,7 +12,6 @@ class Solver:
         self.coeff_strizione = None
         self.indice_elasticita = None
         self.punto_snervamento = None
-        self.line = None
         self.modulo_young = None
         self.sforzo_max = None
         self.punti_deformazione = np.array([])
@@ -21,7 +20,7 @@ class Solver:
         self.diametro = 10
         self.sezione_iniziale = 50
         self.sezione_finale = 85
-        self.forma_provino = "quadrato"
+        self.forma_provino = "Quadrata"
         self.lunghezza_iniziale = 50
 
         plt.style.use('dark_background')
@@ -72,7 +71,7 @@ class Solver:
         self.update()
 
     def create_graph(self):
-        self.line = self.ax.plot(self.punti_deformazione, self.punti_sforzo, "o-", color='#1989e2')
+        line = self.ax.plot(self.punti_deformazione, self.punti_sforzo, "o-", color='#1989e2')
 
         self.ax.set_xlim(0, np.max(self.punti_deformazione) * 1.01)
         self.ax.set_ylim(0, np.max(self.punti_sforzo) * 1.01)
