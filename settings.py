@@ -1,0 +1,2 @@
+# colors
+BACKGROUND = '#242424'
