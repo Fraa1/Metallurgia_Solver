@@ -2,6 +2,7 @@ import numpy as np
 
 
 class Calculator:
+
     def __init__(self, df, dati, strings):
         self.intersection_point = None
         self.indice_elasticita = None
@@ -25,7 +26,6 @@ class Calculator:
         self.strings = strings
 
         self.df = df
-
 
     def update(self):
         self.calc_sezione_iniziale()
@@ -51,7 +51,6 @@ class Calculator:
             self.punti_sforzo = y / self.sezione_iniziale * 1000
 
         self.punti_deformazione = x / self.lunghezza_iniziale
-
 
         return self.punti_deformazione, self.punti_sforzo
 
@@ -91,10 +90,8 @@ class Calculator:
 
             # filter the only valid intersection and correct for float point error
             if y_points[i + 1] * 1.001 >= y >= y_points[i] * 0.999:
-                print(x, y)
                 return x, y
 
-        print("test")
         return None
 
     def calc_sforzo_max(self):

@@ -93,7 +93,6 @@ class ControlFrame(ctk.CTkFrame):
         self.indice_elasticita_label.grid(row=0, column=5, sticky='w')
         self.coeff_strizione_label.grid(row=1, column=5, sticky='w')
 
-
     def import_csv(self):
         csv_path = filedialog.askopenfilename()
         if csv_path:
