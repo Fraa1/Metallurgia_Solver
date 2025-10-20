@@ -1,9 +1,8 @@
-from dati import *
 import numpy as np
 
 
 class Calculator:
-    def __init__(self, df):
+    def __init__(self, df, dati):
         self.indice_elasticita = None
         self.sforzo_max = None
         self.punto_snervamento = None
@@ -12,9 +11,13 @@ class Calculator:
         self.punti_sforzo = []
         self.modulo_young = None
 
+        self.forma_sezione = dati['forma_sezione']
+        self.lunghezza_iniziale = dati['lunghezza_iniziale']
+        self.dimensione = dati['dimensione']
+        self.sezione_finale = dati['sezione_finale']
+
         self.df = df
 
-        self.update()
 
     def update(self):
         self.calc_sezione_iniziale()
@@ -28,16 +31,16 @@ class Calculator:
     def convert_points(self):
         x = np.array(self.df["x"])
         y = np.array(self.df["y"])
-        self.punti_deformazione = x / LUNGHEZZA_INIZIALE
+        self.punti_deformazione = x / self.lunghezza_iniziale
         self.punti_sforzo = y / self.sezione_iniziale * 1000
 
         return self.punti_deformazione, self.punti_sforzo
 
     def calc_sezione_iniziale(self):
-        if FORMA_SEZIONE == "quadrata":
-            self.sezione_iniziale = LATO ** 2
-        elif FORMA_SEZIONE == "circolare":
-            self.sezione_iniziale = DIAMETRO ** 2 * np.pi / 4
+        if self.forma_sezione == "quadrata":
+            self.sezione_iniziale = self.dimensione ** 2
+        elif self.forma_sezione == "circolare":
+            self.sezione_iniziale = self.dimensione ** 2 * np.pi / 4
 
     def calc_modulo_young(self):
         self.modulo_young = self.punti_sforzo[1] / self.punti_deformazione[1]
@@ -78,4 +81,4 @@ class Calculator:
         self.indice_elasticita = self.punto_snervamento ** 2 / 2 * self.modulo_young
 
     def calc_coeff_strizione(self):
-        self.coeff_strizione = (self.sezione_iniziale - SEZIONE_FINALE) * 100 / self.sezione_iniziale
+        self.coeff_strizione = (self.sezione_iniziale - self.sezione_finale) * 100 / self.sezione_iniziale
