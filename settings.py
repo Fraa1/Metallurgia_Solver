@@ -1,5 +1,9 @@
+
+WINDOW_WIDTH = 1600
+WINDOW_HEIGHT = 800
+
 # colors
 BACKGROUND = '#242424'
 CTK_BLUE = '#1f6aa5'
-VIOLET = '#4e1fa5'
+RED = '#a51f33'
 WHITE = 'fffff'

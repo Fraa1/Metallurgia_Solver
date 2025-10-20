@@ -9,6 +9,7 @@ class App(ctk.CTk):
     def __init__(self):
         super().__init__()
 
+        self.plot = None
         self.punti_deformazione = None
         self.punti_sforzo = None
         self.calc = None
@@ -16,7 +17,8 @@ class App(ctk.CTk):
         # ctk setup
         ctk.set_appearance_mode('dark')
         plt.style.use('dark_background')
-        self.geometry('1600x800')
+        plt.tight_layout()
+        self.geometry(f'{WINDOW_WIDTH}x{WINDOW_HEIGHT}')
         self.title('Metallurgia Solver')
         self.minsize(1600, 800)
 
@@ -26,7 +28,7 @@ class App(ctk.CTk):
         self.rowconfigure(1, weight=7, uniform='a')
 
         # ctk widgets
-        self.csv_button = ControlFrame(self, self.load_csv, self.update_plot)
+        self.control_frame = ControlFrame(self, self.load_csv, self.update_plot)
 
         self.df = pd.read_csv('point_data.csv', skipinitialspace=True)
 
@@ -42,11 +44,12 @@ class App(ctk.CTk):
             self.df = pd.read_csv(path, skipinitialspace=True)
 
     def display_plot(self):
-        PlotDisplay(self, self.fig, self.ax, self.punti_deformazione, self.punti_sforzo, self.calc)
+        self.plot = PlotDisplay(self, self.fig, self.ax, self.punti_deformazione, self.punti_sforzo, self.calc)
+        self.plot.style_plot(self.control_frame.units)
 
-    def update_plot(self, dati):
+    def update_plot(self, dati, strings):
         if self.df is not None:
-            self.calc = Calculator(self.df, dati)
+            self.calc = Calculator(self.df, dati, strings)
             self.calc.update()
             self.punti_deformazione, self.punti_sforzo = self.calc.convert_points()
 

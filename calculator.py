@@ -2,7 +2,8 @@ import numpy as np
 
 
 class Calculator:
-    def __init__(self, df, dati):
+    def __init__(self, df, dati, strings):
+        self.intersection_point = None
         self.indice_elasticita = None
         self.sforzo_max = None
         self.punto_snervamento = None
@@ -11,10 +12,17 @@ class Calculator:
         self.punti_sforzo = []
         self.modulo_young = None
 
+        # dati
         self.forma_sezione = dati['forma_sezione']
         self.lunghezza_iniziale = dati['lunghezza_iniziale']
         self.dimensione = dati['dimensione']
-        self.sezione_finale = dati['sezione_finale']
+        self.units = dati['units']
+        if self.units == 'gigapascal':
+            self.sezione_finale = dati['sezione_finale'] / 1000000
+        else:
+            self.sezione_finale = dati['sezione_finale']
+
+        self.strings = strings
 
         self.df = df
 
@@ -23,16 +31,27 @@ class Calculator:
         self.calc_sezione_iniziale()
         self.convert_points()
         self.calc_modulo_young()
+        self.strings['modulo_young'].set(f'Modulo di Young: {self.modulo_young:.2f}')
         self.calc_sforzo_snervamento()
+        self.strings['sforzo_snervamento'].set(f'Sforzo di Snervamento: {self.punto_snervamento:.2f}')
         self.calc_sforzo_max()
+        self.strings['sforzo_max'].set(f'Sforzo Massimo: {self.sforzo_max:.2f}')
         self.calc_indice_elasticita()
+        self.strings['indice_elasticita'].set(f'Indice di Elasticità: {self.indice_elasticita:.2f}')
         self.calc_coeff_strizione()
+        self.strings['coeff_strizione'].set(f'Coefficiente di Strizione: {self.coeff_strizione:.2f}')
 
     def convert_points(self):
-        x = np.array(self.df["x"])
-        y = np.array(self.df["y"])
+        x = np.array(self.df["x(mm)"])
+        y = np.array(self.df["y(kN)"])
+        if self.units == 'gigapascal':
+            self.sezione_iniziale /= 1000000
+            self.punti_sforzo = y / (self.sezione_iniziale * 1000000)
+        elif self.units == 'newtonmm':
+            self.punti_sforzo = y / self.sezione_iniziale * 1000
+
         self.punti_deformazione = x / self.lunghezza_iniziale
-        self.punti_sforzo = y / self.sezione_iniziale * 1000
+
 
         return self.punti_deformazione, self.punti_sforzo
 
@@ -47,10 +66,11 @@ class Calculator:
 
     def calc_sforzo_snervamento(self):
         intercept = - 0.002 * self.modulo_young
-        x = np.linspace(0, np.max(self.punti_deformazione))
-        y = x * self.modulo_young + intercept
-        self.punto_snervamento = self.find_intersection(self.modulo_young, intercept)
-        return x, y
+        #x = np.linspace(0, np.max(self.punti_deformazione))
+        #y = x * self.modulo_young + intercept
+        #self.punto_snervamento = self.find_intersection(self.modulo_young, intercept)[1]
+        self.intersection_point = (self.find_intersection(self.modulo_young, intercept))
+        self.punto_snervamento = self.intersection_point[1]
 
     # m_s = pendenza retta (modulo Young), m_q = intercetta
     def find_intersection(self, m_s, q_s):
@@ -71,7 +91,10 @@ class Calculator:
 
             # filter the only valid intersection and correct for float point error
             if y_points[i + 1] * 1.001 >= y >= y_points[i] * 0.999:
-                return y
+                print(x, y)
+                return x, y
+
+        print("test")
         return None
 
     def calc_sforzo_max(self):
